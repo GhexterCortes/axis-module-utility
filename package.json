@@ -1,0 +1,18 @@
+{
+  "name": "axis-package-manager",
+  "description": "Manage your Axis bot's modules via cli",
+  "author": "FalloutStudios",
+  "license": "Apache-2.0",
+  "version": "0.0.1",
+  "bin": {
+    "axis": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^8.3.0",
+    "yaml": "^1.10.2"
+  }
+}
