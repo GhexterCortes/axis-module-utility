@@ -11,7 +11,7 @@ module.exports = () => {
             const command = require(`${__dirname}/commands/${commandFile}`);
             commands.push(command);
         } catch (err) {
-            // error(err.stack || err);
+            error(err.stack || err);
             continue;
         }
     }
