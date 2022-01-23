@@ -2,8 +2,9 @@ const { CommandBuilder, CommandOption } = require('../util/CommandBuilder');
 const backup = require('../util/backupFile');
 const error = require('../util/printError');
 const versions = require('../util/findSupportedVersion');
-const AxisJson = require('../initAxis');
-const ExtractModule = require('../extractModule');
+const AxisJson = require('../InitAxis');
+const ExtractModule = require('../ExtractModule');
+const PackageJson = require('../PackageJson');
 const moveFromCache = require('../util/moveFromCache');
 const chalk = require('chalk');
 const yml = require('yaml');
@@ -61,5 +62,21 @@ module.exports = new CommandBuilder()
 
         moveFromCache(extractModule.cachePath, config.modulesFolder);
 
+        // Update package.json
+        console.log(chalk.yellow('Updating package.json...'));
+        const modifiedPackageJson = new PackageJson(packageJson);
+        if(extractModule.module?.dependencies) modifiedPackageJson.addDependencies(extractModule.module.dependencies);
+        if(modifiedPackageJson.modified) {
+            fs.writeFileSync('./package.json', JSON.stringify(modifiedPackageJson.packageJson, null, 2));
+            console.log(chalk.green('Updated package.json'));
+            console.log(chalk.yellow('New dependencies added to package.json'));
+            console.log(chalk.yellow('Please run ' + chalk.white.bold('npm install') + ' to install new dependencies'));
+            console.log(chalk.bgYellow.black('WARNING:') + ' ' + chalk.yellow('If you wan\'t to bring back your old '+ chalk.blue('package.json') +', use ' + chalk.white.bold('restore-packagejson') + ' command'));
+        }
+
+        // Update axis.json
+        console.log(chalk.yellow('Updating axis.json...'));
+        axisJson.addModule(extractModule.module);
+        axisJson.save();
         console.log(chalk.green('Installation complete'));
     });

@@ -1,6 +1,7 @@
 const StreamZip = require('node-stream-zip');
 const error = require('./util/printError');
 const validateModule = require('./util/validateModule');
+const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
 
@@ -21,7 +22,7 @@ module.exports = class ExtractModule {
 
         if(fs.existsSync(cachePath)) fs.rmSync(cachePath + '/', { recursive: true, force: true });
         zip.on('extract', (entry, file) => {
-            console.log(`Extracted ${entry.name} to ${file}`);
+            console.log(`Extracted ${chalk.blue(entry.name)} to ${chalk.green(file)}`);
         });
 
         await zip.extract(null, cachePath + '/', () => true);

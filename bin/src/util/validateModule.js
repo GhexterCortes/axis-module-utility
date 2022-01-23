@@ -1,4 +1,5 @@
-module.exports = (module_, axisJs, version) => {
+const chalk = require('chalk');
+module.exports = (module_, axisJson, version) => {
 
     if(!module_.name) throw new Error('No module name found in the target module');
     if(!module_.main) throw new Error('No main file found in the target module');
@@ -11,7 +12,7 @@ module.exports = (module_, axisJs, version) => {
     if(module_.description && typeof module_.description !== 'string') throw new Error('Module description is not a string');
     if(module_.description && module_.description.length > 1024) throw new Error('Module description is too long');
     if(module_.description && module_.description.length < 1) throw new Error('Module description is too short');
-    if(axisJs.modules.find(m => m.name === module_.name)) throw new Error('Module ' + chalk.bold.blue(module_.name) + ' already exists');
+    if(axisJson.modules.find(m => m.name === module_.name)) throw new Error('Module ' + chalk.bold.blue(module_.name) + ' already exists');
     if(!module_.supportedVersions.includes(version)) throw new Error('Module ' + chalk.bold.blue(module_.name) + ' is not supported on this version of Axis');
     if(module_.dependencies && typeof module_.dependencies !== 'object') throw new Error('Dependencies are not an object');
 

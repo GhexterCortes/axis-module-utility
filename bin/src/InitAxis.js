@@ -26,7 +26,7 @@ module.exports = class AxisJson {
         if(!this.json.modules) this.json.modules = [];
 
         try {
-            validateModule(module_);
+            validateModule(module_, this.json, this.version);
         } catch(err) {
             error(err.message);
         }
@@ -39,6 +39,12 @@ module.exports = class AxisJson {
         if(!this.json.modules) this.json.modules = [];
 
         this.json.modules.filter(m => m.name !== module_.name);
+        return this;
+    }
+
+    save() {
+        fs.writeFileSync('./axis.json', JSON.stringify(this.json, null, 2));
+        this.cache.axisJson = this.json;
         return this;
     }
 }
