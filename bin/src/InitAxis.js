@@ -3,13 +3,12 @@ const error = require('./util/printError');
 const fs = require('fs');
 
 module.exports = class AxisJson {
-    constructor(version, packageJson) {
+    constructor(version) {
         this.version = version;
-        this.packageJson = packageJson;
         this.json = {
             modules: [],
         };
-        this.cache = { axisJson: this.json, packageJson: this.packageJson };
+        this.cache = { axisJson: this.json };
     }
 
     init() {

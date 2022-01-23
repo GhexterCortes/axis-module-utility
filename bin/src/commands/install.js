@@ -62,7 +62,16 @@ module.exports = new CommandBuilder()
         console.log(chalk.yellow('Extracting module...'));
         await extractModule.getModule(axisJson);
 
-        moveFromCache(extractModule.cachePath, config.modulesFolder);
+        // Update axis.json
+        console.log(chalk.yellow('Updating axis.json...'));
+        axisJson.addModule(extractModule.module).save();
+
+        try{
+            moveFromCache(extractModule.cachePath, config.modulesFolder, extractModule.module?.ignore);
+        } catch (err) {
+            axisJson.removeModule(extractModule.module).save();
+            error(err.message);    
+        }
 
         // Update package.json
         console.log(chalk.yellow('Updating package.json...'));
@@ -76,9 +85,5 @@ module.exports = new CommandBuilder()
             console.log(chalk.bgYellow.black('WARNING:') + ' ' + chalk.yellow('If you wan\'t to bring back your old '+ chalk.blue('package.json') +', use ' + chalk.white.bold('restore-packagejson') + ' command'));
         }
 
-        // Update axis.json
-        console.log(chalk.yellow('Updating axis.json...'));
-        axisJson.addModule(extractModule.module);
-        axisJson.save();
         console.log(chalk.green('Installation complete'));
     });
