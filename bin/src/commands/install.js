@@ -12,7 +12,7 @@ const fs = require('fs');
 
 module.exports = new CommandBuilder()
     .setName(['install', 'in', 'i'])
-    .setDescription('Install a module')
+    .setDescription('Install a module from zip file')
     .addOption(new CommandOption()
         .setName('module')
         .setDescription('The module to install')
@@ -22,6 +22,9 @@ module.exports = new CommandBuilder()
     .setExecute(async (args, command, commands) => {
         const moduleName = args.get('module').value;
         console.log('Installing module ' + chalk.bold.blue(moduleName));
+
+        // Check if module is exists
+        if(!fs.existsSync('./' + moduleName)) error('File ' + chalk.bold.blue(moduleName) + ' not found');
 
         // Check if package.json exists
         if(!fs.existsSync('./package.json')) error('No package.json found\nUse ' + chalk.white.bold('download') + ' to create new Axis bot');
@@ -47,7 +50,6 @@ module.exports = new CommandBuilder()
         // Create package.json backup
         console.log('Creating package.json backup...');
         if(!backup('./package.json')) error('Failed to backup package.json');
-
 
         const axisJson = new AxisJson(packageJson.version);
         const extractModule = new ExtractModule(moduleName, packageJson.version);
