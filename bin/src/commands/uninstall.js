@@ -1,6 +1,7 @@
 const { CommandBuilder, CommandOption } = require('../util/CommandBuilder');
 const versions = require('../util/findSupportedVersion');
 const AxisJson = require('../InitAxis');
+const { input } = require('fallout-utility');
 const error = require('../util/printError');
 const chalk = require('chalk');
 const yml = require('yaml');
@@ -28,6 +29,8 @@ module.exports = new CommandBuilder()
 
         console.log('Preparing uninstallation...');
         console.log('Detected version: ' + chalk.bold.blue(packageJson.version || 'unknown'));
+
+        if(input({ text: 'Are you sure you want to uninstall ' + moduleName + '? (y/n): ', echo: null }).toLowerCase() != 'y') return;
 
         // Check if Axis is supported
         const isSupported = versions(packageJson.version);

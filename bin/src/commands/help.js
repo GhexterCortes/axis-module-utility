@@ -28,7 +28,7 @@ module.exports = new CommandBuilder()
             if(cmd?.options.length > 0) {
                 console.log(chalk.bold('Options:'));
                 cmd.options.forEach(o => {
-                    console.log(`  ${chalk.greenBright(o.name) +' '+ (o.equired ? chalk.bgYellowBright.black('Required') : chalk.bgBlue.black('Optional'))} — ${o.description}`);
+                    console.log(`  ${chalk.greenBright(o.name) +' '+ (o.required ? chalk.bgYellowBright.black('Required') : chalk.bgBlue.black('Optional'))} — ${o.description}`);
                 });
             }
         }
