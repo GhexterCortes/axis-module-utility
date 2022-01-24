@@ -30,7 +30,7 @@ module.exports = new CommandBuilder()
         console.log('Preparing uninstallation...');
         console.log('Detected version: ' + chalk.bold.blue(packageJson.version || 'unknown'));
 
-        if(input({ text: 'Are you sure you want to uninstall ' + moduleName + '? (y/n): ', echo: null }).toLowerCase() != 'y') return;
+        if(input({ text: 'Are you sure you want to uninstall ' + moduleName + '? This process is irreversible (y/n): ', echo: null }).toLowerCase() != 'y') return;
 
         // Check if Axis is supported
         const isSupported = versions(packageJson.version);
@@ -53,13 +53,14 @@ module.exports = new CommandBuilder()
 
         const mainFile = config.modulesFolder + '/' + foundModule.main;
         const folders = foundModule?.folders || [];
+
         if(fs.existsSync(mainFile)) {
             fs.rmSync(mainFile, { recursive: true, force: true });
             console.log(chalk.green(chalk.bold.blue(mainFile) + ' removed!'));
         }
 
         for (const folder of folders) {
-            if(fs.existsSync(folder)) {
+            if(fs.existsSync(config.modulesFolder + '/' + folder)) {
                 fs.rmSync(config.modulesFolder + '/' + folder, { recursive: true, force: true });
                 console.log(chalk.green(chalk.bold.blue(folder) + ' removed!'));
             }
