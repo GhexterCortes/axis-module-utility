@@ -37,7 +37,7 @@ module.exports = class AxisJson {
     removeModule(module_) {
         if(!this.json.modules) this.json.modules = [];
 
-        this.json.modules.filter(m => m.name !== module_.name);
+        this.json.modules = this.json.modules.filter(m => m.name !== module_.name);
         return this;
     }
 
