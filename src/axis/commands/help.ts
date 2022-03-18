@@ -34,6 +34,17 @@ export const command = new CreateCommand()
         console.log(chalk.green(commandFind.name) + ' — ' + commandFind.description);
         console.log(`   ${createCommandUsage(commandFind)}`);
         console.log('');
+        if (commandFind.options.length) {
+            console.log('Options:');
+            console.log(commandFind.options.map(option => {
+                const required = [
+                    option.required ? chalk.red('<') : chalk.blue('['),
+                    option.required ? chalk.red('>') : chalk.blue(']'),
+                ];
+                return `   ${required[0]}${option.name}${ option.type !== 'STRING' ? chalk.grey(':' + option.type) : '' }${required[1]} — ${option.description}`;
+            }).join('\n'));
+            console.log('');
+        }
         console.log('Aliases: ' + chalk.green(commandFind.aliases.join(', ')));
         console.log('');
         console.log('Use ' + chalk.green('axis help') + ' to see a list of commands');

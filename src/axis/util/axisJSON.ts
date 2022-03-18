@@ -68,3 +68,16 @@ export function removeAxisModule(moduleName: string, dir: string = './') {
 
     return true;
 }
+
+export function getAxisJson(dir: string = './') {
+    if (!isSupportedVersion()) return new Error(chalk.red('This directory does not seem to be a valid Axis directory'));
+    if (!existsSync(path.join(dir, 'axis.json'))) {
+        const init = initAxis(dir);
+        if (init instanceof Error) return init;
+    }
+
+    const axisJson: AxisJson = JSON.parse(readFileSync(path.join(dir, 'axis.json'), 'utf8'));
+    if (!axisJson.modules) axisJson.modules = [];
+
+    return axisJson;
+}
