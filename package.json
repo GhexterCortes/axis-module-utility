@@ -4,18 +4,23 @@
   "author": "GhexterCortes",
   "license": "Apache-2.0",
   "version": "0.0.4",
+  "main": "bin/module.js",
   "bin": {
     "axis": "bin/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf bin",
+    "compile": "npm run clean && tsc",
+    "publish": "npm run compile && npm install && sleep 1 && npm publish"
   },
   "dependencies": {
-    "axios": "^0.25.0",
+    "axios": "^0.26.1",
     "chalk": "^4.1.2",
-    "commander": "^8.3.0",
     "fallout-utility": "^1.2.7",
     "node-stream-zip": "^1.15.0",
     "yaml": "^1.10.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.2"
   }
 }
