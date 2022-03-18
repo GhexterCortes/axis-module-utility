@@ -10,10 +10,13 @@ export interface AxisJsonModuleDependencies {
 export interface AxisJsonModule {
     name: string;
     version: string;
+    author: string|string[];
+    license?: string;
     main: string;
     files: string[];
     supportedVersions: string[];
     description: string;
+    repository?: string;
     dependencies: AxisJsonModuleDependencies
 }
 
