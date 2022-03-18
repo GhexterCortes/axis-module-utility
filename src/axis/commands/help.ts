@@ -8,11 +8,14 @@ export const command = new CreateCommand()
     .setDescription('Show help for a command')
     .addOption('command', 'The command to show help for', false)
     .setExecute((args, cmd, commands) => {
+        const footer = 'Use ' + chalk.green('axis help <command>') + ' to see help for a specific command';
+        const footerAllCommands = 'Use ' + chalk.green('axis help') + ' to see a list of commands';
+
         if (!args[0].value) {
             console.log(`The following commands are available:`);
             console.log(commands.map(c => `   ${createCommandUsage(c)}`).join('\n'));
             console.log('');
-            console.log('Use ' + chalk.green('axis help <command>') + ' to see help for a specific command');
+            console.log(footer);
             return;
         }
 
@@ -23,7 +26,7 @@ export const command = new CreateCommand()
                 console.log(`The following commands are similar to ${chalk.green(args[0].value)}`);
                 console.log(filter.map(c => `   ${createCommandUsage(c)}`).join('\n'));
                 console.log('');
-                console.log('Use ' + chalk.green('axis help <command>') + ' to see help for a specific command');
+                console.log(footer);
                 return;
             }
 
@@ -47,5 +50,5 @@ export const command = new CreateCommand()
         }
         console.log('Aliases: ' + chalk.green(commandFind.aliases.join(', ')));
         console.log('');
-        console.log('Use ' + chalk.green('axis help') + ' to see a list of commands');
+        console.log(footerAllCommands);
     });
