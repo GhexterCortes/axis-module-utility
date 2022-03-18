@@ -78,10 +78,10 @@ export function createCommandUsage(command: Command, includeArgs: boolean = true
             option.required ? chalk.red('<') : chalk.blue('['),
             option.required ? chalk.red('>') : chalk.blue(']'),
         ];
-        return `${required[0]}${option.name}${ option.type !== 'STRING' ? chalk.grey(':' + option.type) : '' }${required[1]}`;
+        return ` ${required[0]}${option.name}${ option.type !== 'STRING' ? chalk.grey(':' + option.type) : '' }${required[1]}`;
     }) : [];
 
-    return `${chalk.green('axis ' + command.name)}${options.join(' ')}`;
+    return `${chalk.green('axis ' + command.name)}${options.join()}`;
 }
 
 export function executeCommand(commands: CreateCommand[]): void {
@@ -126,9 +126,10 @@ export function executeCommand(commands: CreateCommand[]): void {
                 arg = Number(arg);
                 break;
             case 'BOOLEAN':
-                if (arg === 'true') arg = true;
-                else if (arg === 'false') arg = false;
+                if (arg === 'true' || arg === 't' || arg === '1' || arg === 'yes' || arg === 'y') arg = true;
+                else if (arg === 'false' || arg === 'f' || arg === '0' || arg === 'no' || arg === 'n') arg = false;
                 else {
+                    if (typeof arg === 'undefined') continue;
                     console.log(`Invalid boolean value ${chalk.red(arg)}`);
                     console.log(`Usage: ` + createCommandUsage(commandObject));
                     process.exit(1);
