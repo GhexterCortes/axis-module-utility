@@ -86,7 +86,7 @@ export function createCommandUsage(command: Command, includeArgs: boolean = true
 
 export function executeCommand(commands: CreateCommand[]): void {
     const command = process.argv.slice(2)[0];
-    const args = process.argv.slice(3);
+    const args = process.argv.slice(3).map(m => m === ':null:' ? null : m);
 
     if (!command) {
         console.log(`Usage: axis <command> [options]`);

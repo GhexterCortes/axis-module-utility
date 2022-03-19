@@ -9,7 +9,7 @@ export const command = new CreateCommand()
     .setDescription('Install a archived module')
     .addOption('file', 'module archive to install', true)
     .addOption('show-stack', 'show stack trace on error', false, 'BOOLEAN')
-    .setExecute(async (args, flags) => {
+    .setExecute(async (args) => {
         try {
             new ModuleManager()
                 .setPath(args[0].value, process.cwd())
