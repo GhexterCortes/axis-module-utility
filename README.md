@@ -11,11 +11,12 @@ npm i -g axis-module-utility
 
 ## Getting Started
 ### Commands
-```bash
+```yml
 The following commands are available:
    axis clear-cache [auto-yes:BOOLEAN]
    axis download [version], [show-stack:BOOLEAN]
    axis help [command]
+   axis init-dot-axis [dont-ask:BOOLEAN]
    axis init
    axis install <file>, [show-stack:BOOLEAN]
    axis list
@@ -46,7 +47,7 @@ axis install packaged-module.zip
 To create your module you must add [`.axis`](#creating-axis) inside your archive and it'll be formatted as JSON. Main file and other files such as folders can be added too.
 
 > File structure
-> ```
+> ```yml
 > Package.zip
 >├─ ModuleRequiredFolder/
 >│  ├─ index.js
@@ -69,6 +70,10 @@ To create your module you must add [`.axis`](#creating-axis) inside your archive
 + `files` - `string[]` Additional files to be added to the other than the main file.
 + `description` - `string` The description of the module.
 + `repository` - `string` The repository of the module.
+
+
+> You can use `axis init-dot-axis` to create a `.axis` file.
+
 
 **.axis**
 ```json
