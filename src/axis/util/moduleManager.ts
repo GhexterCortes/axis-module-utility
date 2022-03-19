@@ -52,7 +52,7 @@ export class ModuleManager {
         console.log(chalk.green(`Extracting files to ${chalk.yellow(path.join(this.axisDir, '.axiscache'))}`));
         
         if (this.dotAxis?.name) {
-            if (axiscache.some(x => x === this.dotAxis?.name)) rmSync(path.join(this.axisDir, '.axiscache', this.dotAxis.name), { recursive: true });
+            if (axiscache.some(x => x === this.dotAxis?.name)) rmSync(path.join(this.axisDir, '.axiscache', this.dotAxis.name), { recursive: true, force: true });
 
             mkdirSync(path.join(this.axisDir, '.axiscache', this.dotAxis.name), { recursive: true });
 
@@ -110,7 +110,7 @@ export class ModuleManager {
 
         if (transferedFiles !== files.length) {
             for (const file of files) {
-                if (existsSync(path.join(modulePath, file))) rmSync(path.join(modulePath, file));
+                if (existsSync(path.join(modulePath, file))) rmSync(path.join(modulePath, file), { recursive: true, force: true });
             }
             throw new Error('Some files are not transfered');
         }
@@ -122,14 +122,12 @@ export class ModuleManager {
         return this;
     }
 
-    removeModule(): ModuleManager {
-        if (!this.dotAxis) throw new Error('Dot axis is not defined');
-        if (!this.dotAxis?.name) throw new Error('Module name is not defined');
-        if (!this.dotAxis.version) throw new Error('Dot axis version is not defined');
-        if (!this.dotAxis.main) throw new Error('Dot axis main file is not defined');
+    removeModule(name: string): ModuleManager {
+        const m = this.axisJson?.modules?.find(x => x.name === name);
+        if (!m) throw new Error(`Module ${chalk.yellow(name)} does not exists`);
 
         const modulePath = path.join(this.axisDir, this.modulesDir);
-        const files = [this.dotAxis.main, ...(this.dotAxis.files || [])];
+        const files = [m.main, ...(m.files || [])];
 
         if (!existsSync(modulePath)) throw new Error('Module path does not exist');
         
@@ -141,7 +139,7 @@ export class ModuleManager {
                 console.log(`${chalk.yellow(path.join(modulePath, file))} does not exist`);
                 continue;
             }
-            rmSync(path.join(modulePath, file));
+            rmSync(path.join(modulePath, file), { recursive: true, force: true });
             console.log(`${chalk.green(path.join(modulePath, file))} removed`);
             removedFiles++;
         }
@@ -150,14 +148,14 @@ export class ModuleManager {
 
         if (this.axisJson?.modules) {
             console.log(`Updating axis.json`);
-            this.axisJson.modules = this.axisJson?.modules.filter(x => this.dotAxis && x.name !== this.dotAxis.name);
+            this.axisJson.modules = this.axisJson?.modules.filter(x => x.name !== m.name);
             this.saveAxisJson();
         }
 
-        if (this.dotAxis?.dependencies) {
+        if (m?.dependencies) {
             console.log(chalk.yellow(`Dependencies detected!`));
-            console.log(chalk.yellow(`Manually remove dependencies from package.json to avoid errors to other modules using the same dependencies as ${chalk.blue(this.dotAxis.name)}`));
-            console.log(chalk.yellow(`Dependencies: ${Object.keys(this.dotAxis.dependencies).map(x => chalk.blue(x)).join(', ')}`));
+            console.log(chalk.yellow(`Manually remove dependencies from package.json to avoid errors to other modules using the same dependencies as ${chalk.blue(m.name)}`));
+            console.log(chalk.yellow(`Dependencies: ${Object.keys(m.dependencies).map(x => chalk.blue(x)).join(', ')}`));
         }
 
         return this;
@@ -213,6 +211,40 @@ export class ModuleManager {
         return this;
     }
 
+    parseAxisJson(): ModuleManager {
+        const axisJson = getAxisJson(this.axisDir);
+        this.axisJson = !(axisJson instanceof Error) ? axisJson : undefined;
+
+        return this;
+    }
+
+    parseAxisConfig(): ModuleManager {
+        const findVersion = supportedVersions.find(elm => elm.versions.some(v => v === this.pkgJson?.version));
+        if (!findVersion) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} is not supported`);
+        if (!existsSync(findVersion.configDir)) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} doesn't have ${chalk.yellow(findVersion.configDir)} directory`);
+
+        const axisConfig = yaml.parse(readFileSync(findVersion.configDir, 'utf8'));
+        if (!axisConfig) throw new Error('Cannot parse config file');
+        
+        this.modulesDir = axisConfig.modulesFolder;
+        if (!existsSync(path.join(this.axisDir, this.modulesDir))) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} doesn't have ${chalk.yellow(this.modulesDir)} directory`);
+        
+        console.log(`Modules root directory is set to ${chalk.blue(this.modulesDir)}`);
+        return this;
+    }
+
+    parsePkgJson(): ModuleManager {
+        if (!existsSync(path.join(this.axisDir, 'package.json'))) throw new Error(`Current directory doesn't have ${chalk.yellow('package.json')} file`);
+        
+        const packageJson = JSON.parse(readFileSync(path.join(this.axisDir, 'package.json'), 'utf8'));
+        if (!packageJson) throw new Error('Cannot parse package.json file');
+
+        this.pkgJson = packageJson;
+
+        console.log(`Detected Axis version ${chalk.blue(this.pkgJson?.version)}`);
+        return this;
+    }
+
     private parseDotAxis(): ModuleManager {
         if (!this.entries?.some(entry => entry.toLowerCase() === '.axis')) throw new Error(`Module doesn't have ${chalk.yellow('.axis')} file`);
         
@@ -229,40 +261,6 @@ export class ModuleManager {
         this.dotAxis = content;
 
         if (!this.dotAxis?.supportedVersions.some(v => v === this.pkgJson?.version)) throw new Error(`Module version ${chalk.yellow(this.pkgJson?.version)} is not supported by this version of Axis`);
-        return this;
-    }
-
-    private parsePkgJson(): ModuleManager {
-        if (!existsSync(path.join(this.axisDir, 'package.json'))) throw new Error(`Current directory doesn't have ${chalk.yellow('package.json')} file`);
-        
-        const packageJson = JSON.parse(readFileSync(path.join(this.axisDir, 'package.json'), 'utf8'));
-        if (!packageJson) throw new Error('Cannot parse package.json file');
-
-        this.pkgJson = packageJson;
-
-        console.log(`Detected Axis version ${chalk.blue(this.pkgJson?.version)}`);
-        return this;
-    }
-
-    private parseAxisJson(): ModuleManager {
-        const axisJson = getAxisJson(this.axisDir);
-        this.axisJson = !(axisJson instanceof Error) ? axisJson : undefined;
-
-        return this;
-    }
-
-    private parseAxisConfig(): ModuleManager {
-        const findVersion = supportedVersions.find(elm => elm.versions.some(v => v === this.pkgJson?.version));
-        if (!findVersion) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} is not supported`);
-        if (!existsSync(findVersion.configDir)) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} doesn't have ${chalk.yellow(findVersion.configDir)} directory`);
-
-        const axisConfig = yaml.parse(readFileSync(findVersion.configDir, 'utf8'));
-        if (!axisConfig) throw new Error('Cannot parse config file');
-        
-        this.modulesDir = axisConfig.modulesFolder;
-        if (!existsSync(path.join(this.axisDir, this.modulesDir))) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} doesn't have ${chalk.yellow(this.modulesDir)} directory`);
-        
-        console.log(`Modules root directory is set to ${chalk.blue(this.modulesDir)}`);
         return this;
     }
 }

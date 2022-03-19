@@ -34,13 +34,13 @@ export const command = new CreateCommand()
         console.log(chalk.green('Modules in axis.json:'));
         console.log('');
         
-        for (const module of axisJson.modules) {
-            console.log(chalk.green(`- ${module.name} (${chalk.blue(module.version)})`));
-            console.log(`  ${chalk.yellow('Description:')} ${module.description}`);
-            console.log(`  ${chalk.yellow('Author:')} ${typeof module.author === 'object' ? module.author.join(', ') : module.author}`);
-            console.log(`  ${chalk.yellow('License:')} ${module.license || 'Unlicensed'}`);
-            console.log(`  ${chalk.yellow('Repository:')} ${module.repository || 'N/A'}`);
-            console.log(`  ${chalk.yellow('Dependencies:')} ${module.dependencies.length || 0} dependencies found`);
+        for (const m of axisJson.modules) {
+            console.log(chalk.green(`- ${m.name} (${chalk.blue(m.version)})`));
+            console.log(`  ${chalk.yellow('Description:')} ${m.description}`);
+            console.log(`  ${chalk.yellow('Author:')} ${typeof m.author === 'object' ? m.author.join(', ') : m.author}`);
+            console.log(`  ${chalk.yellow('License:')} ${m.license || 'Unlicensed'}`);
+            console.log(`  ${chalk.yellow('Repository:')} ${m.repository || 'N/A'}`);
+            console.log(`  ${chalk.yellow('Dependencies:')} ${Object.keys(m.dependencies).length || 0} ${Object.keys(m.dependencies).length > 1  ? 'dependencies' : 'dependency'} found`);
             console.log('');
         }
     });
