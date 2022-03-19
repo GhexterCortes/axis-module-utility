@@ -115,7 +115,7 @@ export function executeCommand(commands: CreateCommand[]): void {
     for (let opt of commandObject.options) {
         let arg: any = args[options.length];
         if (!arg && opt.required) {
-            console.log(`Missing required argument ${chalk.red(opt.name)}`);
+            console.log(`Missing required argument ${chalk.red(opt.name)} — ${opt.description}`);
             console.log(`Usage: ` + createCommandUsage(commandObject));
             process.exit(1);
         }
