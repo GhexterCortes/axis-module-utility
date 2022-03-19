@@ -82,7 +82,7 @@ To create your module you must add [`.axis`](#creating-axis) inside your archive
 **.axis**
 ```json
 {
-	"name": "AxiisModule",
+    "name": "AxiisModule",
     "version": "1.0",
     "author": "You",
     "license": "MIT",
