@@ -2,9 +2,9 @@ import chalk from 'chalk';
 import Zip from 'adm-zip';
 import * as path from 'path';
 import * as yaml from 'yaml';
-import { AxisJson, AxisJsonModule } from './axisJSON';
+import { AxisJson, AxisJsonModule, getAxisJson } from './axisJSON';
 import { default as supportedVersions } from '../supported-versions.json';
-import { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, renameSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync, rmSync, renameSync, mkdirSync } from 'fs';
 
 export interface PkgJson {
     name: 'axis';
@@ -26,10 +26,11 @@ export class ModuleManager {
     public zip?: Zip = undefined;
     
     setPath(modulePath: string, dir: string = './'): ModuleManager {
-        if (!modulePath) throw new Error('Path is not defined');
-        if (!existsSync(modulePath)) throw new Error('Path does not exist');
+        if (!modulePath) throw new Error('Module path is not defined');
+        if (!existsSync(modulePath)) throw new Error(`Module path ${chalk.yellow(modulePath)} does not exist`);
         this.modulePath = modulePath;
 
+        console.log(chalk.green(`Module path set to ${chalk.yellow(modulePath)}`));
         this.zip = new Zip(modulePath);
         this.entries = this.zip.getEntries().map(entry => entry.entryName);
         
@@ -38,6 +39,7 @@ export class ModuleManager {
         this.parsePkgJson();
         this.parseAxisConfig();
         this.parseDotAxis();
+        this.parseAxisJson();
 
         return this;
     }
@@ -45,15 +47,17 @@ export class ModuleManager {
     extractToCache(): ModuleManager {
         if (!this.zip) throw new Error('Archive is not available');
 
-        if (!existsSync(path.join(this.axisDir, '.axiscache'))) writeFileSync(path.join(this.axisDir, '.axiscache'), '');
+        if (!existsSync(path.join(this.axisDir, '.axiscache'))) mkdirSync(path.join(this.axisDir, '.axiscache'), { recursive: true });
         const axiscache = readdirSync(path.join(this.axisDir, '.axiscache'));
+        console.log(chalk.green(`Extracting files to ${chalk.yellow(path.join(this.axisDir, '.axiscache'))}`));
         
         if (this.dotAxis?.name) {
             if (axiscache.some(x => x === this.dotAxis?.name)) rmSync(path.join(this.axisDir, '.axiscache', this.dotAxis.name), { recursive: true });
 
-            writeFileSync(path.join(this.axisDir, '.axiscache', this.dotAxis?.name), '');
+            mkdirSync(path.join(this.axisDir, '.axiscache', this.dotAxis.name), { recursive: true });
 
-            this.zip.extractAllTo(path.join(this.axisDir, '.axiscache', this.dotAxis?.name), true);
+            this.zip.extractAllTo(path.join(this.axisDir, '.axiscache', this.dotAxis.name));
+            console.log(chalk.green(`Extracted ${chalk.yellow(this.dotAxis.name)} to ${chalk.yellow(path.join(this.axisDir, '.axiscache', this.dotAxis.name))}`));
         } else {
             throw new Error('Module name is not defined');
         }
@@ -67,19 +71,30 @@ export class ModuleManager {
         if (!this.dotAxis.version) throw new Error('Dot axis version is not defined');
         if (!this.dotAxis.main) throw new Error('Dot axis main file is not defined');
         if (!existsSync(path.join(this.axisDir, '.axiscache', this.dotAxis.name))) throw new Error('Module is not extracted to cache');
+        if (this.axisJson?.modules?.some(x => this.dotAxis?.name && x.name === this.dotAxis.name)) throw new Error(`Module ${chalk.yellow(this.dotAxis.name)} already exists`);
 
         const modulePath = path.join(this.axisDir, this.modulesDir);
         const cachePath = path.join(this.axisDir, '.axiscache', this.dotAxis.name);
         const files = [this.dotAxis.main, ...(this.dotAxis.files || [])];
 
-        if (!existsSync(modulePath)) writeFileSync(modulePath, '');
+        console.log('');
+        console.log(chalk.green(`Installing module ${chalk.yellow(this.dotAxis.name)}`));
+        console.log(chalk.green(`Module version ${chalk.yellow(this.dotAxis.version)}`));
+        console.log(chalk.green(`Module main file ${chalk.yellow(this.dotAxis.main)}`));
+        console.log(chalk.green(`Module files ${chalk.yellow(files.join(', '))}`));
+        console.log('');
+
+        if (!existsSync(modulePath)) mkdirSync(modulePath, { recursive: true });
         if (!existsSync(path.join(cachePath, this.dotAxis.main))) throw new Error('Module main file is not extracted to cache');
         if (existsSync(path.join(modulePath, this.dotAxis.main))) throw new Error('File '+ chalk.yellow(this.dotAxis.main) +' already exists');
         if (this.dotAxis.files && this.dotAxis.files.length) {
+            console.log(`Copying additional files (${chalk.yellow(files.join(', '))}) to ${chalk.yellow(modulePath)}`);
+
             for (const file of this.dotAxis.files) {
                 if (!existsSync(path.join(cachePath, file))) throw new Error('File '+ chalk.yellow(file) +' is not extracted to cache');
                 if (existsSync(path.join(modulePath, file))) throw new Error('File '+ chalk.yellow(file) +' already exists');
                 renameSync(path.join(cachePath, file), path.join(modulePath, file));
+                console.log(`Copied file ${chalk.yellow(file)}`);
             }
         }
 
@@ -149,8 +164,8 @@ export class ModuleManager {
     }
 
     saveAxisJson(): ModuleManager {
-        if (!this.axisJson) throw new Error('Axis json is not defined');
-        if (!this.axisJson?.modules) throw new Error('Axis json modules is not defined');
+        if (!this.axisJson) throw new Error('axis.json is not defined');
+        if (!this.axisJson?.modules) throw new Error('axis.json modules is not defined');
 
         const axisJson = this.axisJson;
 
@@ -225,6 +240,14 @@ export class ModuleManager {
 
         this.pkgJson = packageJson;
 
+        console.log(`Detected Axis version ${chalk.blue(this.pkgJson?.version)}`);
+        return this;
+    }
+
+    private parseAxisJson(): ModuleManager {
+        const axisJson = getAxisJson(this.axisDir);
+        this.axisJson = !(axisJson instanceof Error) ? axisJson : undefined;
+
         return this;
     }
 
@@ -236,9 +259,10 @@ export class ModuleManager {
         const axisConfig = yaml.parse(readFileSync(findVersion.configDir, 'utf8'));
         if (!axisConfig) throw new Error('Cannot parse config file');
         
-        this.modulesDir = axisConfig.modules;
+        this.modulesDir = axisConfig.modulesFolder;
         if (!existsSync(path.join(this.axisDir, this.modulesDir))) throw new Error(`Axis version ${chalk.yellow(this.pkgJson?.version)} doesn't have ${chalk.yellow(this.modulesDir)} directory`);
         
+        console.log(`Modules root directory is set to ${chalk.blue(this.modulesDir)}`);
         return this;
     }
 }
