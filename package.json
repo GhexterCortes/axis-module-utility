@@ -1,9 +1,15 @@
 {
   "name": "axis-module-utility",
   "description": "Manage your Axis bot's modules via cli",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GhexterCortes/axis-module-utility.git"
+  },
+  "readme": "README.md",
+  "homepage": "https://github.com/GhexterCortes/axis-module-utility",
   "author": "GhexterCortes",
   "license": "Apache-2.0",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "main": "bin/module.js",
   "bin": {
     "axis": "bin/index.js"
