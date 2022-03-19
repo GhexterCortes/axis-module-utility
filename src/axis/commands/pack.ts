@@ -23,6 +23,8 @@ export const command = new CreateCommand()
 
         if (!existsSync(path.join('./', '.axis'))) {
             console.log(chalk.red('No .axis file found in current directory'));
+            console.log('');
+            console.log('Use ' + chalk.green('axis init-dot-axis') + ' to create .axis file');
             process.exit(1);
         }
 
