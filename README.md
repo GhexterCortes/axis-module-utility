@@ -20,6 +20,7 @@ The following commands are available:
    axis init
    axis install <file>, [show-stack:BOOLEAN]
    axis list
+   axis pack [out-dir]
    axis uninstall <file>, [auto-yes:BOOLEAN], [show-stack:BOOLEAN]
    axis version
 
@@ -45,6 +46,9 @@ axis install packaged-module.zip
 ```
 ### Creating Packaged Module
 To create your module you must add [`.axis`](#creating-axis) inside your archive and it'll be formatted as JSON. Main file and other files such as folders can be added too.
+
+> You can use `axis pack` to create a packaged zip file.
+> It'll create zip file containing your main file and other files according to your [`.axis`](#creating-axis) file.
 
 > File structure
 > ```yml
