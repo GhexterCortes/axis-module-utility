@@ -120,21 +120,20 @@ export function executeCommand(commands: CreateCommand[]): void {
             process.exit(1);
         }
 
-        switch (opt.type) {
-            case 'STRING': break;
-            case 'NUMBER': 
-                arg = Number(arg);
-                break;
-            case 'BOOLEAN':
-                if (arg === 'true' || arg === 't' || arg === '1' || arg === 'yes' || arg === 'y') arg = true;
-                else if (arg === 'false' || arg === 'f' || arg === '0' || arg === 'no' || arg === 'n') arg = false;
-                else {
-                    if (typeof arg === 'undefined') continue;
+        if (opt.type === 'NUMBER') {
+            arg = Number(arg);
+        } else if (opt.type === 'BOOLEAN') {
+            if (arg === 'true' || arg === 't' || arg === '1' || arg === 'yes' || arg === 'y') {
+                arg = true;
+            } else if (arg === 'false' || arg === 'f' || arg === '0' || arg === 'no' || arg === 'n') {
+                arg = false;
+            } else {
+                if (typeof arg !== 'undefined') {
                     console.log(`Invalid boolean value ${chalk.red(arg)}`);
                     console.log(`Usage: ` + createCommandUsage(commandObject));
                     process.exit(1);
                 }
-                break;
+            }
         }
 
         const option: CommandOptionValue = {
