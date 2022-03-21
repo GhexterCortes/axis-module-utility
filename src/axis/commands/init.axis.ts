@@ -26,7 +26,12 @@ export const command = new CreateCommand()
         const defaultAxisJson: AxisJsonModule = {
             name: input('Module name: '),
             version: input('Module Version (1.0): ') || '1.0',
-            author: input('Author: '),
+            author: (() => {
+                const author = input('Author(s) (separate by comma): ');
+
+                const authors: string[] = author.split(',') || [];
+                return authors.length > 1 ? authors.map(a => a.trim()) : authors[0];
+            })(),
             license: input('License (MIT): ') || 'MIT',
             main: input('Main file: '),
             files: (() => {
@@ -54,6 +59,6 @@ export const command = new CreateCommand()
         let confirm = ask('OK? (y/n): ') != 'n';
         if (confirm) {
             writeFileSync('.axis', JSON.stringify(defaultAxisJson, null, 2));
-            console.log(chalk.green('axis.json created'));
+            console.log(chalk.green('successfuly created .axis file'));
         }
     });

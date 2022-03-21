@@ -9,7 +9,7 @@
   "homepage": "https://github.com/GhexterCortes/axis-module-utility",
   "author": "GhexterCortes",
   "license": "Apache-2.0",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "bin/module.js",
   "bin": {
     "axis": "bin/index.js"
