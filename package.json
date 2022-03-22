@@ -9,7 +9,7 @@
   "homepage": "https://github.com/GhexterCortes/axis-module-utility",
   "author": "GhexterCortes",
   "license": "Apache-2.0",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "bin/module.js",
   "bin": {
     "axis": "bin/index.js"
@@ -17,7 +17,7 @@
   "scripts": {
     "clean": "rimraf bin",
     "compile": "npm run clean && tsc && npm i axis-module-utility -g && npm i . -g",
-    "publish": "npm run compile && npm install && sleep 1 && npm publish"
+    "build": "npm run compile && npm install && sleep 1 && npm publish"
   },
   "dependencies": {
     "adm-zip": "^0.5.9",
