@@ -15,11 +15,11 @@ export const command = new CreateCommand()
         let outDir = args[0].value || process.cwd();
         let moduleName = undefined;
         
-        if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
         if (outDir.endsWith('.zip')) {
             moduleName = path.basename(outDir);
             outDir = path.dirname(outDir);
         }
+        if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 
         if (!existsSync(path.join('./', '.axis'))) {
             console.log(chalk.red('No .axis file found in current directory'));
